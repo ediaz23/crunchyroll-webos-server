@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     const { url } = body
     delete body.url
 
-    console.log(`req ${body.method}`)
+    console.log(`req ${body.method} ${url}`)
     try {
         const result = await fetch(url, body)
         res.statusCode = result.status
