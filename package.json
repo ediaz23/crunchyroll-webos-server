@@ -1,0 +1,19 @@
+{
+    "name": "crunchyroll-webos-server",
+    "version": "1.0.0",
+    "description": "Server to forward requests",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "play": "node --experimental-specifier-resolution=node index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "node-fetch": "^3.3.1"
+    },
+    "type": "module"
+}
