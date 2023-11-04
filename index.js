@@ -9,24 +9,6 @@ const router = express.Router()
 const router2 = express.Router()
 const port = 8052
 
-router2.post('/', async (req, res) => {
-    const { webosService } = await import('../crunchyroll-webos-service/index')
-    const { body } = req
-    const message = {
-        respond: response => {
-            if (response.returnValue === false) {
-                res.status(500).json(response)
-            } else {
-                res.status(200).json(response)
-            }
-        },
-        payload: body || {}
-    }
-    console.log(`req ${body.method} ${body.url}`)
-    webosService['forwardRequest'](message)
-})
-
-
 router.post('/', async (req, res) => {
     const { body } = req
     const { url } = body
@@ -35,13 +17,38 @@ router.post('/', async (req, res) => {
     console.log(`req ${body.method} ${url}`)
     try {
         const result = await fetch(url, body)
-        res.statusCode = result.status
-        res.statusMessage = result.statusText
-        result.body.pipe(res)
+        const data = await result.arrayBuffer()
+        const content = Buffer.from(data).toString('base64')
+        const headers = Object.fromEntries(result.headers)
+        res.status(200).json({
+            status: result.status,
+            statusText: result.statusText,
+            headers,
+            content,
+        })
     } catch (e) {
         console.error(e)
         res.status(500).json({ error: e.toString() })
     }
+})
+
+router2.post('/', async (req, res) => {
+    const { webosService } = await import('../crunchyroll-webos-service/index')
+    const { body } = req
+    const message = {
+        respond: response => {
+            if (response.returnValue === false) {
+                console.log('response 500')
+                res.status(500).json(response)
+            } else {
+                console.log(`response 200 res ${response.status}`)
+                res.status(200).json(response)
+            }
+        },
+        payload: body || {}
+    }
+    console.log(`req2 ${body.method} ${body.url}`)
+    webosService['forwardRequest'](message)
 })
 
 app.use(cors())
