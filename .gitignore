@@ -12,3 +12,4 @@ node_modules/
 /build/
 /dist/
 /spnp_webos_service
+/public/

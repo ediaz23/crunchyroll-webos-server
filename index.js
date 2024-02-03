@@ -2,8 +2,31 @@
 import express from 'express'
 import cors from 'cors'
 import fetch from 'node-fetch'
+import path from 'path'
 
 const app = express()
+
+app.use(cors())
+
+const directorioActual = new URL('.', import.meta.url).pathname
+const rutaPublica = path.join(directorioActual, 'public')
+
+app.get('/kimi.mpd', (req, res) => {
+    res.sendFile(path.join(rutaPublica, 'kimi.mpd'))
+})
+
+app.get('/kimi.bif', (req, res) => {
+    res.sendFile(path.join(rutaPublica, 'kimi.bif'))
+})
+
+app.get('/kimi.ass', (req, res) => {
+    res.sendFile(path.join(rutaPublica, 'kimi.ass'))
+})
+
+app.get('/segment/:filename', (req, res) => {
+    const filename = req.params.filename;
+    res.sendFile(path.join(rutaPublica, filename))
+})
 
 const router = express.Router()
 const router2 = express.Router()
@@ -57,11 +80,10 @@ router2.post('/', async (req, res) => {
         },
         payload: body || {}
     }
-//    console.log(`req2 ${body.method} ${url}`)
+    //    console.log(`req2 ${body.method} ${url}`)
     webosService['forwardRequest'](message)
 })
 
-app.use(cors())
 app.use(express.json())
 
 app.use('/webos', router)
