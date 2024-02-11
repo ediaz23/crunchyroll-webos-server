@@ -12,7 +12,7 @@ const directorioActual = new URL('.', import.meta.url).pathname
 const rutaPublica = path.join(directorioActual, 'public')
 
 app.get('/kimi.mpd', (req, res) => {
-    res.sendFile(path.join(rutaPublica, 'kimi.mpd'))
+    res.sendFile(path.join(rutaPublica + '/dash/', 'kimi.mpd'))
 })
 
 app.get('/kimi.bif', (req, res) => {
@@ -24,8 +24,13 @@ app.get('/kimi.ass', (req, res) => {
 })
 
 app.get('/segment/:filename', (req, res) => {
-    const filename = req.params.filename;
-    res.sendFile(path.join(rutaPublica, filename))
+    const filename = req.params.filename
+    res.sendFile(path.join(rutaPublica + '/dash/', filename))
+})
+
+app.get('/hls/:filename', (req, res) => {
+    const filename = req.params.filename
+    res.sendFile(path.join(rutaPublica + '/hls/', filename))
 })
 
 const router = express.Router()
