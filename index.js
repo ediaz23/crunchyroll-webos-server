@@ -1,15 +1,14 @@
 
-import express from 'express'
-import cors from 'cors'
-import fetch from 'node-fetch'
-import path from 'path'
+const express = require('express')
+const cors = require('cors')
+const fetch = require('node-fetch')
+const path = require('path')
 
 const app = express()
 
 app.use(cors())
 
-const directorioActual = new URL('.', import.meta.url).pathname
-const rutaPublica = path.join(directorioActual, 'public')
+const rutaPublica = path.join(__dirname, 'public')
 
 app.get('/kimi.mpd', (req, res) => {
     res.sendFile(path.join(rutaPublica + '/dash/', 'kimi.mpd'))
@@ -66,7 +65,7 @@ const fgGreen = '\x1b[32m'
 const fgYellow = '\x1b[33m'
 
 router2.post('/', async (req, res) => {
-    const { webosService } = await import('../crunchyroll-webos-service/index')
+    const { webosService } = require('../crunchyroll-webos-service/index')
     const { body } = req
     const url = body.url
     const message = {
