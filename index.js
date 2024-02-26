@@ -71,14 +71,14 @@ router2.post('/', async (req, res) => {
     const message = {
         respond: response => {
             if (response.returnValue === false) {
-                console.log(fgYellow, `response 500 - ${body.method} ${url}`, reset)
+//                console.log(fgYellow, `response 500 - ${body.method} ${url}`, reset)
                 res.status(500).json(response)
             } else {
-                if (200 <= response.status && response.status < 300) {
-                    console.log(fgGreen, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
-                } else {
-                    console.log(fgRed, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
-                }
+//                if (200 <= response.status && response.status < 300) {
+//                    console.log(fgGreen, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
+//                } else {
+//                    console.log(fgRed, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
+//                }
                 res.status(200).json(response)
             }
         },
