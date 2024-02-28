@@ -59,33 +59,25 @@ router.post('/', async (req, res) => {
     }
 })
 
-const reset = '\x1b[0m'
-const fgRed = '\x1b[31m'
-const fgGreen = '\x1b[32m'
-const fgYellow = '\x1b[33m'
+//const reset = '\x1b[0m'
+//const fgRed = '\x1b[31m'
+//const fgGreen = '\x1b[32m'
+//const fgYellow = '\x1b[33m'
 
 router2.post('/', async (req, res) => {
     const { webosService } = require('../crunchyroll-webos-service/index')
     const { body } = req
-    const url = body.url
     const message = {
         respond: response => {
             if (response.returnValue === false) {
-//                console.log(fgYellow, `response 500 - ${body.method} ${url}`, reset)
                 res.status(500).json(response)
             } else {
-//                if (200 <= response.status && response.status < 300) {
-//                    console.log(fgGreen, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
-//                } else {
-//                    console.log(fgRed, `resp 200 res ${response.status} - ${body.method} ${url}`, reset)
-//                }
                 res.status(200).json(response)
             }
         },
         payload: body || {}
     }
-    //    console.log(`req2 ${body.method} ${url}`)
-    webosService['forwardRequest'](message)
+    webosService['forwardRequest0'](message)
 })
 
 app.use(express.json())
