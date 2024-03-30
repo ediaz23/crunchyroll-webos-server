@@ -34,6 +34,7 @@ app.get('/hls/:filename', (req, res) => {
 
 const router = express.Router()
 const router2 = express.Router()
+const router3 = express.Router()
 const port = 8052
 
 router.post('/', async (req, res) => {
@@ -59,10 +60,29 @@ router.post('/', async (req, res) => {
     }
 })
 
+let cacheRes = {}
+
 //const reset = '\x1b[0m'
 //const fgRed = '\x1b[31m'
 //const fgGreen = '\x1b[32m'
 //const fgYellow = '\x1b[33m'
+
+router3.post('/', async (req, res) => {
+    const { body } = req
+    /** @type {{url: string}} */
+    const { url } = body
+    if (url in cacheRes) {
+        if (cacheRes[url] !== body.content) {
+            console.error('     compare DISTINTS', url)
+        } else {
+            console.error('  compare', url.substring(0, 60))
+        }
+        delete cacheRes[url]
+    } else {
+        console.error('     compare not found', url)
+    }
+    res.sendStatus(200)
+})
 
 router2.post('/', async (req, res) => {
     const { webosService } = require('../crunchyroll-webos-service/index')
@@ -72,6 +92,7 @@ router2.post('/', async (req, res) => {
             if (response.returnValue === false) {
                 res.status(500).json(response)
             } else {
+                cacheRes[response.resUrl] = response.content
                 res.status(200).json(response)
             }
         },
@@ -80,10 +101,16 @@ router2.post('/', async (req, res) => {
     webosService['forwardRequest0'](message)
 })
 
-app.use(express.json())
+app.use(express.json({ limit: '50Mb' }))
 
 app.use('/webos', router)
 app.use('/webos2', router2)
+app.use('/compare', router3)
+
+app.use((req, res, _next) => {
+    console.log('--> 404', req.url)
+    res.sendStatus(404)
+})
 
 app.listen(port, () => {
     console.log(`api escuchando en el puerto ${port}`)
