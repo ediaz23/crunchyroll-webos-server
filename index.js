@@ -10,21 +10,14 @@ app.use(cors())
 
 const rutaPublica = path.join(__dirname, 'public')
 
-app.get('/kimi.mpd', (req, res) => {
-    res.sendFile(path.join(rutaPublica + '/dash/', 'kimi.mpd'))
-})
-
-app.get('/kimi.bif', (req, res) => {
-    res.sendFile(path.join(rutaPublica, 'kimi.bif'))
-})
-
-app.get('/kimi.ass', (req, res) => {
-    res.sendFile(path.join(rutaPublica, 'kimi.ass'))
-})
-
-app.get('/segment/:filename', (req, res) => {
+app.get('/:filename', (req, res) => {
+    /** @type {String} */
     const filename = req.params.filename
-    res.sendFile(path.join(rutaPublica + '/dash/', filename))
+    if (filename.endsWith('.mpd') || filename.endsWith('.mp4') || filename.endsWith('.m4s')) {
+        res.sendFile(path.join(rutaPublica + '/dash/', filename))
+    } else {
+        res.sendFile(path.join(rutaPublica, filename))
+    }
 })
 
 app.get('/hls/:filename', (req, res) => {
