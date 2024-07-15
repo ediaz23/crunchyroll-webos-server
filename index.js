@@ -78,7 +78,7 @@ router3.post('/', async (req, res) => {
 })
 
 router2.post('/', async (req, res) => {
-    const { webosService } = require('../crunchyroll-webos-service/index')
+    const { webosService } = require('../crunchyroll-webos-service/src/index')
     const { body } = req
     const message = {
         respond: response => {
