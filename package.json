@@ -1,6 +1,6 @@
 {
     "name": "crunchyroll-webos-server",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Server to forward requests",
     "main": "index.js",
     "scripts": {
@@ -9,14 +9,14 @@
         "debug": "node index.js"
     },
     "engines": {
-        "node": ">=8.12.0"
+        "node": ">=18.20.2"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
         "cors": "^2.8.5",
-        "express": "^4.18.2",
+        "express": "^4.21.1",
         "encoding": "^0.1.13",
         "node-fetch": "^2.6.7"
     },
