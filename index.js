@@ -3,6 +3,7 @@ const express = require('express')
 const cors = require('cors')
 const fetch = require('node-fetch')
 const path = require('path')
+const fs = require('fs')
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.get('/hls/:filename', (req, res) => {
 const router = express.Router()
 const router2 = express.Router()
 const router3 = express.Router()
+const router4 = express.Router()
 const port = 8052
 
 router.post('/', async (req, res) => {
@@ -94,11 +96,22 @@ router2.post('/', async (req, res) => {
     webosService['forwardRequest0'](message)
 })
 
+router4.post('/', async (req, res) => {
+    const { body } = req
+    const { name, data } = body
+    const mockRuta = path.join(__dirname, '../crunchyroll-webos-stream/src/mock-data/data')
+    const filePath = path.join(mockRuta, `${name}`)
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 4), 'utf-8')
+    res.status(200).send()
+
+})
+
 app.use(express.json({ limit: '50Mb' }))
 
 app.use('/webos', router)
 app.use('/webos2', router2)
 app.use('/compare', router3)
+app.use('/save-mock-data', router4)
 
 app.use((req, res, _next) => {
     console.log('--> 404', req.url)
