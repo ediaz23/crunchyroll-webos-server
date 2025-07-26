@@ -30,6 +30,7 @@ const router = express.Router()
 const router2 = express.Router()
 const router3 = express.Router()
 const router4 = express.Router()
+const router5 = express.Router()
 const port = 8052
 
 router.post('/', async (req, res) => {
@@ -79,7 +80,11 @@ router3.post('/', async (req, res) => {
     res.sendStatus(200)
 })
 
-router2.post('/', async (req, res) => {
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+async function  redirectToService (req, res, serviceName) {
     const { webosService } = require('../crunchyroll-webos-service/src/index')
     const { body } = req
     const message = {
@@ -87,14 +92,19 @@ router2.post('/', async (req, res) => {
             if (response.returnValue === false) {
                 res.status(500).json(response)
             } else {
-                cacheRes[response.resUrl] = response.content
+                if (response.content) {
+                    cacheRes[response.resUrl] = response.content
+                }
                 res.status(200).json(response)
             }
         },
         payload: body || {}
     }
-    webosService['forwardRequest0'](message)
-})
+    webosService[serviceName](message)
+}
+
+router2.post('/', (req, res) => redirectToService(req, res, 'forwardRequest0'))
+router5.post('/', (req, res) => redirectToService(req, res, 'fonts'))
 
 router4.post('/', async (req, res) => {
     const { body } = req
@@ -112,6 +122,7 @@ app.use('/webos', router)
 app.use('/webos2', router2)
 app.use('/compare', router3)
 app.use('/save-mock-data', router4)
+app.use('/fonts', router5)
 
 app.use((req, res, _next) => {
     console.log('--> 404', req.url)

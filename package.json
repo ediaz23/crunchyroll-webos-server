@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "play": "node index.js",
-        "debug": "node --inspect index.js"
+        "dev": "node --inspect index.js"
     },
     "engines": {
         "node": ">=18.20.2"
