@@ -9,31 +9,41 @@ const app = express()
 
 app.use(cors())
 
-const rutaPublica = path.join(__dirname, 'public')
-
-app.get('/:filename', (req, res) => {
-    /** @type {String} */
-    const filename = req.params.filename
-    if (filename.endsWith('.mpd') || filename.endsWith('.mp4') || filename.endsWith('.m4s')) {
-        res.sendFile(path.join(rutaPublica + '/dash/', filename))
-    } else {
-        res.sendFile(path.join(rutaPublica, filename))
-    }
-})
-
-app.get('/hls/:filename', (req, res) => {
-    const filename = req.params.filename
-    res.sendFile(path.join(rutaPublica + '/hls/', filename))
-})
-
-const router = express.Router()
-const router2 = express.Router()
-const router3 = express.Router()
-const router4 = express.Router()
-const router5 = express.Router()
 const port = 8052
+let cacheRes = {}
 
-router.post('/', async (req, res) => {
+//const reset = '\x1b[0m'
+//const fgRed = '\x1b[31m'
+//const fgGreen = '\x1b[32m'
+//const fgYellow = '\x1b[33m'
+
+
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+async function redirectToService(req, res, serviceName) {
+    const { webosService } = require('../crunchyroll-webos-service/src/index')
+    const { body } = req
+    const message = {
+        respond: response => {
+            if (response.returnValue === false) {
+                res.status(500).json(response)
+            } else {
+                if (response.content) {
+                    cacheRes[response.resUrl] = response.content
+                }
+                res.status(200).json(response)
+            }
+        },
+        payload: body || {}
+    }
+    webosService[serviceName](message)
+}
+
+app.use(express.json({ limit: '50Mb' }))
+
+app.post('/webos', async (req, res) => {
     const { body } = req
     const { url } = body
     delete body.url
@@ -56,14 +66,9 @@ router.post('/', async (req, res) => {
     }
 })
 
-let cacheRes = {}
+app.post('/webos2', (req, res) => redirectToService(req, res, 'forwardRequest0'))
 
-//const reset = '\x1b[0m'
-//const fgRed = '\x1b[31m'
-//const fgGreen = '\x1b[32m'
-//const fgYellow = '\x1b[33m'
-
-router3.post('/', async (req, res) => {
+app.post('/compare', async (req, res) => {
     const { body } = req
     /** @type {{url: string}} */
     const { url } = body
@@ -80,33 +85,7 @@ router3.post('/', async (req, res) => {
     res.sendStatus(200)
 })
 
-/**
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- */
-async function  redirectToService (req, res, serviceName) {
-    const { webosService } = require('../crunchyroll-webos-service/src/index')
-    const { body } = req
-    const message = {
-        respond: response => {
-            if (response.returnValue === false) {
-                res.status(500).json(response)
-            } else {
-                if (response.content) {
-                    cacheRes[response.resUrl] = response.content
-                }
-                res.status(200).json(response)
-            }
-        },
-        payload: body || {}
-    }
-    webosService[serviceName](message)
-}
-
-router2.post('/', (req, res) => redirectToService(req, res, 'forwardRequest0'))
-router5.post('/', (req, res) => redirectToService(req, res, 'fonts'))
-
-router4.post('/', async (req, res) => {
+app.post('/save-mock-data', async (req, res) => {
     const { body } = req
     const { name, data } = body
     const mockRuta = path.join(__dirname, '../crunchyroll-webos-stream/src/mock-data/data')
@@ -116,13 +95,38 @@ router4.post('/', async (req, res) => {
 
 })
 
-app.use(express.json({ limit: '50Mb' }))
+app.post('/fonts', (req, res) => redirectToService(req, res, 'fonts'))
 
-app.use('/webos', router)
-app.use('/webos2', router2)
-app.use('/compare', router3)
-app.use('/save-mock-data', router4)
-app.use('/fonts', router5)
+app.get('/fonts', async (req, res) => {
+    const { url } = req.query
+    try {
+        const filePath = new URL(url).pathname
+        const content = fs.readFileSync(filePath, 'utf8')
+        res.setHeader('Content-Type', 'font/ttf')
+        res.setHeader('Access-Control-Allow-Origin', '*')
+        res.send(content)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send(`Error al leer el archivo: ${err.message}`)
+    }
+})
+
+const rutaPublica = path.join(__dirname, 'public')
+
+app.get('/hls/:filename', (req, res) => {
+    const filename = req.params.filename
+    res.sendFile(path.join(rutaPublica + '/hls/', filename))
+})
+
+app.get('/:filename', (req, res) => {
+    /** @type {String} */
+    const filename = req.params.filename
+    if (filename.endsWith('.mpd') || filename.endsWith('.mp4') || filename.endsWith('.m4s')) {
+        res.sendFile(path.join(rutaPublica + '/dash/', filename))
+    } else {
+        res.sendFile(path.join(rutaPublica, filename))
+    }
+})
 
 app.use((req, res, _next) => {
     console.log('--> 404', req.url)
