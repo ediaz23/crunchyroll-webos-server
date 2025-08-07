@@ -101,10 +101,10 @@ app.get('/fonts', async (req, res) => {
     const { url } = req.query
     try {
         const filePath = new URL(url).pathname
-        const content = fs.readFileSync(filePath, 'utf8')
+        const content = fs.readFileSync(filePath)
         res.setHeader('Content-Type', 'font/ttf')
         res.setHeader('Access-Control-Allow-Origin', '*')
-        res.send(content)
+        res.status(200).send(content)
     } catch (err) {
         console.error(err)
         res.status(500).send(`Error al leer el archivo: ${err.message}`)
