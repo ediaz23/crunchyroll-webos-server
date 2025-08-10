@@ -121,6 +121,11 @@ app.get('/hls/:filename', (req, res) => {
 app.get('/:filename', (req, res) => {
     /** @type {String} */
     const filename = req.params.filename
+    if (filename.endsWith('.ass')) {
+        res.set('Content-Type', 'text/plain; charset=utf-8');
+    } else if (filename.endsWith('.mpd')) {
+        res.set('Content-Type', 'application/dash+xml');
+    }
     if (filename.endsWith('.mpd') || filename.endsWith('.mp4') || filename.endsWith('.m4s')) {
         res.sendFile(path.join(rutaPublica + '/dash/', filename))
     } else {
